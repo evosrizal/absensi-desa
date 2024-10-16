@@ -3,47 +3,47 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Perangkat;
+use App\Models\AbsensiPetugas;
 use Illuminate\Http\Request;
 
 class AbsensiController extends Controller
-
 {
     public function index()
     {
-        $perangkats = Perangkat::all();
-        return response()->json($perangkats);
+        $absensi = AbsensiPetugas::with('perangkat')->get();
+        return response()->json($absensi);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required',
-            'jabatan' => 'required',
-            'nip' => 'required|unique:perangkats'
+            'perangkat_id' => 'required|exists:perangkats,id',
+            'tanggal' => 'required|date',
+            'waktu_masuk' => 'required|date_format:H:i',
+            'status' => 'required|in:hadir,izin,sakit,alpa',
         ]);
 
-        $perangkat = Perangkat::create($request->all());
-        return response()->json($perangkat, 201);
+        $absensi = AbsensiPetugas::create($request->all());
+        return response()->json($absensi, 201);
     }
 
     public function show($id)
     {
-        $perangkat = Perangkat::findOrFail($id);
-        return response()->json($perangkat);
+        $absensi = AbsensiPetugas::with('perangkat')->findOrFail($id);
+        return response()->json($absensi);
     }
 
     public function update(Request $request, $id)
     {
-        $perangkat = Perangkat::findOrFail($id);
-        $perangkat->update($request->all());
-        return response()->json($perangkat);
+        $absensi = AbsensiPetugas::findOrFail($id);
+        $absensi->update($request->all());
+        return response()->json($absensi);
     }
 
     public function destroy($id)
     {
-        $perangkat = Perangkat::findOrFail($id);
-        $perangkat->delete();
+        $absensi = AbsensiPetugas::findOrFail($id);
+        $absensi->delete();
         return response()->json(null, 204);
     }
 }
